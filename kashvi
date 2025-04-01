@@ -1,0 +1,77 @@
+#Phase 1: Data Loading and Initial Inspection
+import pandas as pd
+import numpy as np
+
+# Load the dataset
+file_path = ("C:\\Users\\asus\\Downloads\\customer_call_list.csv")
+df = pd.read_csv("C:\\Users\\asus\\Downloads\\customer_call_list.csv")
+
+# Display the first few rows of the dataset
+print("First 5 rows of the dataset:")
+print(df.head())
+
+# Print data types of each column
+print("\nData types of each column:")
+print(df.dtypes)
+
+# Determine the number of rows and columns in the dataset
+print("\nNumber of rows and columns in the dataset:")
+print(df.shape)
+
+# Identify missing values in each column
+missing_values = df.isnull().sum()
+print("\nMissing values in each column:")
+print(missing_values)
+
+# Calculate basic descriptive statistics for numerical columns (if any)
+print("\nDescriptive statistics for numerical columns:")
+print(df.describe(include=[np.number]))
+
+# Document initial findings
+initial_findings = """
+Initial Findings:
+- Missing values detected in columns (e.g., Last_Name, Phone_Number, Do_Not_Contact).
+- Column 'Not_Useful_Column' seems irrelevant.
+- Duplicate records exist.
+"""
+print(initial_findings)
+
+#Phase 2: Data Cleaning
+# Handling Missing Values
+# Fill missing values for categorical columns with mode
+
+categorical_columns = df.select_dtypes(include=['object']).columns
+for col in categorical_columns:
+    df[col].fillna(df[col].mode()[0], inplace=True)
+
+# Drop irrelevant columns (e.g., Not_Useful_Column, unnamed columns)
+df.drop(columns=['Not_Useful_Column', 'Unnamed: 8', 'Unnamed: 9'], inplace=True)
+
+# Data Type Conversion
+# Convert 'Phone_Number' to a standardized format and handle inconsistencies
+def clean_phone_number(phone):
+    return str(phone).replace("-", "").replace("/", "").replace("|", "").strip()
+
+df['Phone_Number'] = df['Phone_Number'].apply(clean_phone_number)
+
+# Handling Duplicates
+duplicates = df.duplicated().sum()
+print(f"\nNumber of duplicate records: {duplicates}")
+df.drop_duplicates(inplace=True)
+
+# Addressing Inconsistencies
+# Standardize text case for categorical variables (e.g., First_Name, Last_Name)
+text_columns = ['First_Name', 'Last_Name', 'Address']
+for col in text_columns:
+    df[col] = df[col].str.strip().str.lower()
+
+# Outlier Handling (Example: Capping outliers using IQR method for numerical columns)
+numerical_columns = df.select_dtypes(include=[np.number]).columns
+for col in numerical_columns:
+    Q1 = df[col].quantile(0.25)
+    Q3 = df[col].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    df[col] = np.where(df[col] < lower_bound, lower_bound,
+                       np.where(df[col] > upper_bound, upper_bound, df[col]))
