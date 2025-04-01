@@ -3,8 +3,8 @@ import pandas as pd
 import numpy as np
 
 # Load the dataset
-file_path = ("C:\\Users\\asus\\Downloads\\customer_call_list.csv")
-df = pd.read_csv("C:\\Users\\asus\\Downloads\\customer_call_list.csv")
+file_path = ("C:\\Users\\Kashvi shetty\\Downloads\\customer_call_list.csv")
+df = pd.read_csv("C:\\Users\\Kashvi shetty\\Downloads\\customer_call_list.csv")
 
 # Display the first few rows of the dataset
 print("First 5 rows of the dataset:")
